@@ -9,6 +9,7 @@ from typing import Any, Iterator, Mapping, Sequence
 
 from scene_exchange.intake.demand_contract import Decision, DomainRecord, ContractError, canonical_json, stable_hash, utc_now
 from scene_exchange.pilots.capacity_book import prepare_capacity, register_supplier, accept_pilot, finish_pilot, capacity_status
+from scene_exchange.pilots import retrospective
 
 
 SCHEMA = """
@@ -85,6 +86,7 @@ class Repository:
         with self.connect() as connection:
             connection.executescript(SCHEMA)
             prepare_capacity(connection)
+            retrospective.prepare_retrospective(connection)
 
     def register_supplier(self, supplier_id: str, slots: int) -> None:
         with self.transaction() as connection:
@@ -94,15 +96,68 @@ class Repository:
         with self.transaction() as connection:
             if not connection.execute("SELECT 1 FROM records WHERE record_id=?", (demand_id,)).fetchone():
                 raise ContractError("pilot demand is not registered")
-            return accept_pilot(connection, demand_id, supplier_id)
+            result = accept_pilot(connection, demand_id, supplier_id)
+            for round_id in retrospective.rounds_for_demand(connection, demand_id):
+                retrospective.refresh_renewal_opinion(connection, round_id)
+            return result
 
     def finish_pilot(self, demand_id: str, status: str) -> None:
         with self.transaction() as connection:
             finish_pilot(connection, demand_id, status)
+            for round_id in retrospective.rounds_for_demand(connection, demand_id):
+                retrospective.refresh_renewal_opinion(connection, round_id)
 
     def capacity_status(self, supplier_id: str) -> dict[str, Any]:
         with self.connect() as connection:
             return capacity_status(connection, supplier_id)
+
+    def record_selection_batch(self, round_id: str, batch_id: str, selections: Any,
+                               recorded_at: Any = None) -> dict[str, Any]:
+        with self.transaction() as connection:
+            return retrospective.record_selection_batch(
+                connection, round_id, batch_id, selections, recorded_at=recorded_at)
+
+    def record_observation_batch(self, round_id: str, batch_id: str, period: str, kind: str,
+                                 observations: Any, note: str = '',
+                                 recorded_at: Any = None) -> dict[str, Any]:
+        with self.transaction() as connection:
+            result = retrospective.record_observation_batch(
+                connection, round_id, batch_id, period, kind, observations,
+                note=note, recorded_at=recorded_at)
+            refreshed = retrospective.refresh_renewal_opinion(connection, round_id)
+            return {'batch': result, 'opinion': refreshed['opinion'],
+                    'superseded': refreshed['superseded'], 'created': refreshed['created']}
+
+    def refresh_renewal_opinion(self, round_id: str, as_of: Any = None,
+                                rules: Mapping[str, Any] | None = None) -> dict[str, Any]:
+        with self.transaction() as connection:
+            return retrospective.refresh_renewal_opinion(connection, round_id, as_of=as_of, rules=rules)
+
+    def effect_review(self, round_id: str, as_of: Any = None,
+                      rules: Mapping[str, Any] | None = None) -> dict[str, Any]:
+        with self.connect() as connection:
+            return retrospective.build_effect_review(connection, round_id, as_of=as_of, rules=rules)
+
+    def pending_opinions(self, round_id: str) -> list[dict[str, Any]]:
+        with self.connect() as connection:
+            return retrospective.pending_opinions(connection, round_id)
+
+    def decide_renewal(self, round_id: str, opinion_id: str, outcome: str,
+                       approver: str, note: str = '') -> dict[str, Any]:
+        with self.transaction() as connection:
+            return retrospective.decide_renewal(connection, round_id, opinion_id, outcome, approver, note)
+
+    def renewal_decisions(self, round_id: str) -> list[dict[str, Any]]:
+        with self.connect() as connection:
+            return retrospective.renewal_decisions(connection, round_id)
+
+    def review_rounds(self) -> list[dict[str, Any]]:
+        with self.connect() as connection:
+            return retrospective.review_rounds(connection)
+
+    def reproduce_renewal_decision(self, decision: Mapping[str, Any]) -> dict[str, Any]:
+        with self.connect() as connection:
+            return retrospective.reproduce_decision_basis(connection, decision)
 
     @contextmanager
     def transaction(self) -> Iterator[sqlite3.Connection]:

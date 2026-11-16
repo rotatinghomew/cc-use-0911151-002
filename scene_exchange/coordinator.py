@@ -77,6 +77,42 @@ class Application:
     def capacity_status(self, supplier_id: str) -> dict[str, Any]:
         return self.repository.capacity_status(supplier_id)
 
+    def record_selection_batch(self, round_id: str, batch_id: str, selections: Any,
+                               recorded_at: Any = None) -> dict[str, Any]:
+        return self.repository.record_selection_batch(round_id, batch_id, selections,
+                                                       recorded_at=recorded_at)
+
+    def record_observation_batch(self, round_id: str, batch_id: str, period: str, kind: str,
+                                 observations: Any, note: str = '',
+                                 recorded_at: Any = None) -> dict[str, Any]:
+        return self.repository.record_observation_batch(round_id, batch_id, period, kind,
+                                                         observations, note=note,
+                                                         recorded_at=recorded_at)
+
+    def refresh_renewal_opinion(self, round_id: str, as_of: Any = None,
+                                rules: Mapping[str, Any] | None = None) -> dict[str, Any]:
+        return self.repository.refresh_renewal_opinion(round_id, as_of=as_of, rules=rules)
+
+    def effect_review(self, round_id: str, as_of: Any = None,
+                      rules: Mapping[str, Any] | None = None) -> dict[str, Any]:
+        return self.repository.effect_review(round_id, as_of=as_of, rules=rules)
+
+    def pending_opinions(self, round_id: str) -> list[dict[str, Any]]:
+        return self.repository.pending_opinions(round_id)
+
+    def decide_renewal(self, round_id: str, opinion_id: str, outcome: str,
+                       approver: str, note: str = '') -> dict[str, Any]:
+        return self.repository.decide_renewal(round_id, opinion_id, outcome, approver, note)
+
+    def renewal_decisions(self, round_id: str) -> list[dict[str, Any]]:
+        return self.repository.renewal_decisions(round_id)
+
+    def review_rounds(self) -> list[dict[str, Any]]:
+        return self.repository.review_rounds()
+
+    def reproduce_renewal_decision(self, decision: Mapping[str, Any]) -> dict[str, Any]:
+        return self.repository.reproduce_renewal_decision(decision)
+
 
 def load_fixture(path: str | Path) -> dict[str, Any]:
     try:

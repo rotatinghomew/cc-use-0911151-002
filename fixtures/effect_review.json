@@ -1,0 +1,97 @@
+{
+  "scenario": "试点效果复盘与续期待审",
+  "synthetic": true,
+  "selections": [
+    {
+      "demand_id": "pilot-selected-001",
+      "sector": "manufacturing",
+      "selected": true,
+      "selected_at": "2026-01-05T09:00:00+08:00",
+      "observation_days": 90,
+      "intake": {
+        "sector": "manufacturing", "problem_severity": 8.2, "data_readiness": 0.82,
+        "deployment_window": 85, "budget_band": 7, "safety_class": 2,
+        "localization_need": 0.55, "integration_count": 4, "supplier_capacity": 0.78,
+        "evidence_strength": 0.81, "conflict_count": 1, "expected_benefit": 0.88
+      }
+    },
+    {
+      "demand_id": "pilot-selected-002",
+      "sector": "manufacturing",
+      "selected": true,
+      "selected_at": "2026-01-05T09:00:00+08:00",
+      "observation_days": 90,
+      "intake": {
+        "sector": "manufacturing", "problem_severity": 7.9, "data_readiness": 0.79,
+        "deployment_window": 90, "budget_band": 6, "safety_class": 2,
+        "localization_need": 0.58, "integration_count": 4, "supplier_capacity": 0.74,
+        "evidence_strength": 0.77, "conflict_count": 2, "expected_benefit": 0.84
+      }
+    },
+    {
+      "demand_id": "pilot-unselected-001",
+      "sector": "manufacturing",
+      "selected": false,
+      "selected_at": "2026-01-05T09:00:00+08:00",
+      "observation_days": 90,
+      "intake": {
+        "sector": "manufacturing", "problem_severity": 8.0, "data_readiness": 0.80,
+        "deployment_window": 88, "budget_band": 7, "safety_class": 2,
+        "localization_need": 0.57, "integration_count": 4, "supplier_capacity": 0.76,
+        "evidence_strength": 0.79, "conflict_count": 1, "expected_benefit": 0.86
+      }
+    },
+    {
+      "demand_id": "pilot-unselected-002",
+      "sector": "manufacturing",
+      "selected": false,
+      "selected_at": "2026-01-05T09:00:00+08:00",
+      "observation_days": 90,
+      "intake": {
+        "sector": "manufacturing", "problem_severity": 8.1, "data_readiness": 0.81,
+        "deployment_window": 84, "budget_band": 7, "safety_class": 2,
+        "localization_need": 0.56, "integration_count": 4, "supplier_capacity": 0.77,
+        "evidence_strength": 0.80, "conflict_count": 1, "expected_benefit": 0.87
+      }
+    },
+    {
+      "demand_id": "pilot-selected-003",
+      "sector": "healthcare",
+      "selected": true,
+      "selected_at": "2026-01-05T09:00:00+08:00",
+      "observation_days": 90,
+      "intake": {
+        "sector": "healthcare", "problem_severity": 8.6, "data_readiness": 0.72,
+        "deployment_window": 75, "budget_band": 8, "safety_class": 3,
+        "localization_need": 0.66, "integration_count": 5, "supplier_capacity": 0.69,
+        "evidence_strength": 0.74, "conflict_count": 2, "expected_benefit": 0.83
+      }
+    }
+  ],
+  "observation_batches": [
+    {
+      "batch_id": "observation-2026-02",
+      "period": "2026-02",
+      "kind": "initial",
+      "note": "首月观察补报",
+      "recorded_at": "2026-02-03T10:00:00+08:00",
+      "observations": [
+        {"demand_id": "pilot-selected-001", "started": true, "exited": false, "benefit": 0.86},
+        {"demand_id": "pilot-selected-002", "started": true, "exited": false, "benefit": 0.79},
+        {"demand_id": "pilot-unselected-001", "started": true, "exited": false, "benefit": 0.52},
+        {"demand_id": "pilot-unselected-002", "started": false, "exited": false},
+        {"demand_id": "pilot-selected-003", "started": true, "exited": false}
+      ]
+    },
+    {
+      "batch_id": "observation-2026-03-supplemental",
+      "period": "2026-03",
+      "kind": "supplemental",
+      "note": "未入选需求收益补报",
+      "recorded_at": "2026-03-05T10:00:00+08:00",
+      "observations": [
+        {"demand_id": "pilot-unselected-002", "started": true, "exited": false, "benefit": 0.55}
+      ]
+    }
+  ]
+}
